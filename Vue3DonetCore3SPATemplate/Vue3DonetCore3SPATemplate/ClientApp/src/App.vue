@@ -3,8 +3,12 @@
         <router-link to="/">Home</router-link> |
         <router-link to="/about">About</router-link> |
         <router-link to="/testAPI">Test weather API</router-link> |
+        <router-link to="/registration" v-if="!isAuthenticated">Regist</router-link> |
+        <router-link to="/admin" v-if="isAdmin">Admin</router-link> |
         <router-link to="/signIn">SignIn</router-link> |
+        
         {{authenticationInfo}}
+        <router-link to="/settings" v-if="isAuthenticated"><span class="material-icons settings">settings</span></router-link>
     </div>
     <router-view/>
     <PageIdle />
@@ -45,10 +49,14 @@
               return isAuthenticated.value ? authInfo.value : unauthInfo
             })
 
+            const isAdmin = computed( () => store.state.authentication.claims.userRoles.find( (x: IUserRole) => x.id == UserRoles.Admin ) )
+
             IsLogin(store)
 
             return {
+                isAuthenticated,
                 authenticationInfo,
+                isAdmin,
             }
         }
 
@@ -75,5 +83,13 @@
                 color: #42b983;
             }
         }
+    }
+</style>
+
+<style lang="scss" scoped>
+    .material-icons.settings{
+        position: absolute;
+        margin-left: 5px;
+        margin-top: -4px;
     }
 </style>

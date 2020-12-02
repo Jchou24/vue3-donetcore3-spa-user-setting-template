@@ -29,10 +29,19 @@ interface IAuthentication{
     claims: IClaims;
 }
 
+interface IUserInfoDetail{
+    id: number;
+    name: string;
+    email: string;
+    accountStatus: AccountStatus;
+    userRoles: Array<IUserRole>;
+}
+
 export {
     AccountStatus,
     UserRoles,
     IUserRole,
     IClaims,
     IAuthentication,
+    IUserInfoDetail,
 }

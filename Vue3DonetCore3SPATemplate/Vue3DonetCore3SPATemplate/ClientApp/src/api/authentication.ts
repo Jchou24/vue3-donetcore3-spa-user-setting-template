@@ -9,6 +9,11 @@ interface ILogin{
     password: string;
 } 
 
+interface IUpdatePassword{
+    currentPassword: string;
+    password: string;
+}
+
 function GetUserInfo(store: Store<any>){
     return axios.get(process.env.VUE_APP_SERVER_URL + 'api/account/getuserinfo')
         .then( response =>{
@@ -45,15 +50,39 @@ function Logout(store: any){
     return axios.post(process.env.VUE_APP_SERVER_URL + 'api/account/logout')
 }
 
+function Regist(data: ILogin, store: any){
+    // console.log("Run Login API")
+    return axios.post(process.env.VUE_APP_SERVER_URL + 'api/account/regist', data)
+        .then(()=>{
+            Login(data, store)
+        })
+}
+
 function KeepAlive(){
     return axios.post(process.env.VUE_APP_SERVER_URL + 'api/account/keepalive')
+}
+
+function UpdateName(data: ILogin, store: any){
+    // console.log("Run Login API")
+    return axios.post(process.env.VUE_APP_SERVER_URL + 'api/account/updateName', data)
+        .then(()=>{
+            store.commit("authentication/SetName", data.name)
+        })
+}
+
+function UpdatePassword(data: IUpdatePassword){
+    return axios.post(process.env.VUE_APP_SERVER_URL + 'api/account/updatePassword', data)
 }
 
 export {
     ILogin,
     IsLogin,
+    IUpdatePassword,
     Login,
     Logout,
     GetUserInfo,
+    Regist,
     KeepAlive,
+    UpdateName,
+    UpdatePassword,
 }
