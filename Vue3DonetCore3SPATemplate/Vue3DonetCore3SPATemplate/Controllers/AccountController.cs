@@ -105,6 +105,25 @@ namespace Vue3DonetCore3SPATemplate.Controllers
             return Ok();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Regist([FromBody] RegistUser registUser)
+        {
+            User user = new User(registUser.Email, registUser.Password);
+
+            switch (_authHandler.Create(user))
+            {
+                case DAL.Models.CreateAccountResult.Ok:
+                    return Ok();
+                case DAL.Models.CreateAccountResult.AccountExist:
+                    ModelState.AddModelError("Fail", "Account exists!");
+                    return BadRequest(ModelState);
+                case DAL.Models.CreateAccountResult.Fail:
+                default:
+                    ModelState.AddModelError("Fail", "Invalid account or password!");
+                    return BadRequest(ModelState);
+            }            
+        }
+
         [HttpGet]
         [Authorize]
         public UserInfo GetUserInfo()
@@ -123,6 +142,53 @@ namespace Vue3DonetCore3SPATemplate.Controllers
 
             var userInfo = new UserInfo(user);
             return userInfo;
+        }
+
+        [HttpPost]
+        [Authorize]
+        public IActionResult UpdateName([FromBody] UpdateUser updateUser)
+        {
+            int? id = User.GetUserId();
+            if (id == null)
+            {
+                return BadRequest();
+            }
+
+            var user = _authHandler.FindById((int)id);
+            if (user == null)
+            {
+                return BadRequest();
+            }
+            user.Name = updateUser.Name;
+            _authHandler.Update(user);
+            return Ok();
+        }
+
+        [HttpPost]
+        [Authorize]
+        public IActionResult UpdatePassword([FromBody] UpdatePassword updatePassword)
+        {
+            int? id = User.GetUserId();
+            if (id == null)
+            {
+                return BadRequest();
+            }
+
+            var user = _authHandler.FindById((int)id);
+            if (user == null)
+            {
+                return BadRequest();
+            }
+
+            if (!SecurePasswordHasher.Verify(updatePassword.CurrentPassword, user.PasswordHash))
+            {
+                ModelState.AddModelError("Fail", "Password is incorrect");
+                return BadRequest(ModelState);
+            }
+
+            user.PasswordHash = SecurePasswordHasher.Hash(updatePassword.Password);
+            _authHandler.Update(user);
+            return Ok();
         }
 
         /// <summary>

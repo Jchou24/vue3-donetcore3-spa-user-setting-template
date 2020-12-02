@@ -37,13 +37,26 @@ namespace Vue3DonetCore3SPATemplate.Helper.Auth
                 return;
             }
 
-            IEnumerable<UserRole> roles = this._authHandler.FindById((int)id)?.UserRoles;
+            var user = this._authHandler.FindById((int)id);
+            if (user == null)
+            {
+                context.Result = new UnauthorizedResult();
+                return;
+            }
+            IEnumerable<UserRole> roles = user.UserRoles;
 
             bool isAuthorized = roles.Any(x => x.CodeName.ToLower() == this._userRole.ToString().ToLower() );
-
             if (!isAuthorized)
             {
                 context.Result = new UnauthorizedResult();
+                return;
+            }
+
+            bool isAccountValid = user.AccountStatus == AccountStatus.Approved;
+            if (!isAccountValid)
+            {
+                context.Result = new UnauthorizedResult();
+                return;
             }
         }
     }
